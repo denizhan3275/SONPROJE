@@ -6,8 +6,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import HikayeyiOkuModal from '../components/HikayeyiOkuModal'
 import YapayZekaTestModal from '../components/yapayZekaTestModal'
 import GirisYapModal from '../components/girişYapModal'
+import UyariModal from '../components/UyariModal'
 import backgroundImage from "../assets/background2.jpg";
-import { FaArrowLeft, FaCopy, FaChevronDown, FaChevronUp, FaPlay, FaStop, FaFileDownload, FaQuestionCircle, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaCopy, FaChevronDown, FaChevronUp, FaPlay, FaStop, FaFileDownload, FaQuestionCircle, FaSignInAlt, FaSignOutAlt, FaExclamationCircle } from 'react-icons/fa';
 
 function Favorites() {
     const [favorites, setFavorites] = useState([])
@@ -26,6 +27,7 @@ function Favorites() {
     const [selectedTestStory, setSelectedTestStory] = useState(null);
     const [completedTests, setCompletedTests] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
+    const [isUyariModalOpen, setIsUyariModalOpen] = useState(false);
 
     useEffect(() => {
         // Auth state'ini dinle
@@ -245,9 +247,17 @@ function Favorites() {
                         >
                             <FaArrowLeft className="w-5 h-5" />
                         </button>
+                        <button
+                            onClick={() => setIsUyariModalOpen(true)}
+                            className="btn-primary bg-red-500 hover:bg-red-600 animate-pulse relative"
+                            title="Önemli Uyarı!"
+                        >
+                            <FaExclamationCircle className="w-5 h-5" />
+                        </button>
                         <h1 className="text-2xl sm:text-4xl font-bold font-vatena text-white text-center sm:text-left">
                             Favori Hikayelerim
                         </h1>
+
                         <div className="flex gap-2">
                             {currentUser ? (
                                 <button
@@ -464,6 +474,11 @@ function Favorites() {
                 <GirisYapModal
                     isOpen={isLoginModalOpen}
                     onClose={() => setIsLoginModalOpen(false)}
+                />
+
+                <UyariModal
+                    isOpen={isUyariModalOpen}
+                    onClose={() => setIsUyariModalOpen(false)}
                 />
             </div>
         </div>
