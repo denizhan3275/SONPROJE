@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { loginUser } from '../services/firebaseConfig';
+import UyeOlModal from './uyeOlModal';
 
 const GirisYapModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState('');
     const [sifre, setSifre] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isUyeOlModalOpen, setIsUyeOlModalOpen] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -102,21 +104,30 @@ const GirisYapModal = ({ isOpen, onClose }) => {
                         {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
                     </button>
 
-                    <div className="text-center">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                // Şifremi unuttum işlemleri burada yapılacak
-                                console.log('Şifremi unuttum');
-                            }}
-                            className="text-blue-500 hover:text-blue-600 text-sm"
-                            disabled={loading}
-                        >
-                            Şifremi Unuttum
-                        </button>
+                    <div className="text-center space-y-2">
+
+                        <div className="text-gray-600 text-sm">
+                            Üye değil misiniz?{' '}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onClose();
+                                    setIsUyeOlModalOpen(true);
+                                }}
+                                className="text-blue-500 hover:text-blue-600 font-medium"
+                                disabled={loading}
+                            >
+                                Üye Ol
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
+
+            <UyeOlModal
+                isOpen={isUyeOlModalOpen}
+                onClose={() => setIsUyeOlModalOpen(false)}
+            />
         </div>
     );
 };
