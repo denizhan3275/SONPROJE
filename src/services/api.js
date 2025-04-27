@@ -110,7 +110,7 @@ export const generateChatResponse = async (message, story = null) => {
         
         Kullanıcı mesajı: ${message}
         
-        Lütfen yardımcı ol ve çocuklara uygun, nazik bir dil kullan. Önerilerini detaylı açıkla.`;
+        Lütfen Önerilerini detaylı açıkla.`;
 
         const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
