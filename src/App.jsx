@@ -26,15 +26,81 @@ function App() {
     'Deniz Kızı', 'Küçük Bilim İnsanı', 'Cesur Şövalye'
   ])
 
-  const [kavramlar] = useState([
-    'Yardımlaşma', 'Doğruluk', 'Çevre Bilinci', 'Sorumluluk',
-    'Empati', 'Paylaşma', 'Sabır', 'Saygı',
-    'Dürüstlük', 'Arkadaşlık', 'Adalet', 'Hoşgörü',
-    'Sevgi', 'Merhamet', 'Özgüven', 'Azim',
-    'Vatanseverlik', 'Çalışkanlık', 'Temizlik', 'Tasarruf'
+  const [kavramKategorileri, setKavramKategorileri] = useState([
+    {
+      baslik: 'Geometrik Şekil',
+      kavramlar: ['Daire', 'Üçgen', 'Kare', 'Dikdörtgen', 'Çember', 'Elips', 'Kenar', 'Köşe']
+    },
+    {
+      baslik: 'Boyut',
+      kavramlar: ['Büyük-Küçük', 'İnce-Kalın', 'Uzun-Kısa', 'Geniş-Dar']
+    },
+    {
+      baslik: 'Miktar',
+      kavramlar: ['Az-Çok', 'Ağır-Hafif', 'Boş-Dolu', 'Tek-Çift', 'Yarım-Tam', 'Eşit', 'Kalabalık-Tenha', 'Parça-Bütün']
+    },
+    {
+      baslik: 'Yön/Mekânda Konum',
+      kavramlar: ['Ön-Arka', 'Yukarı-Aşağı', 'İleri-Geri']
+    },
+    {
+      baslik: 'Konum',
+      kavramlar: ['Sağ-Sol', 'İç-Dış', 'Uzak-Yakın', 'Alçak-Yüksek']
+    },
+    {
+      baslik: 'Sayı/Sayma',
+      kavramlar: ['Sayılar (1-20)', 'Sıfır', 'İlk-Orta-Son', 'Önceki-Sonraki', 'Sıra Sayıları']
+    },
+    {
+      baslik: 'Zaman',
+      kavramlar: ['Gece-Gündüz', 'Sabah-Öğle-Akşam', 'Dün-Bugün-Yarın', 'Haftanın Günleri', 'Aylar', 'Mevsimler']
+    },
+    {
+      baslik: 'Duyu',
+      kavramlar: ['Tatlı-Tuzlu', 'Sıcak-Soğuk', 'Sert-Yumuşak', 'Islak-Kuru', 'Sesli-Sessiz']
+    },
+    {
+      baslik: 'Duygu',
+      kavramlar: ['Mutluluk', 'Üzüntü', 'Öfke', 'Korku', 'Şaşırma', 'Endişe']
+    },
+    {
+      baslik: 'Zıt Kavramlar',
+      kavramlar: ['Açık-Kapalı', 'Hızlı-Yavaş', 'Karanlık-Aydınlık', 'Eski-Yeni', 'Kirli-Temiz', 'Doğru-Yanlış']
+    }
   ])
 
-  const [secilenKavram, setSecilenKavram] = useState('')
+  const [secilenKavram, setSecilenKavram] = useState([])
+  const [yeniKavramlar, setYeniKavramlar] = useState({})
+  const [acikKategoriler, setAcikKategoriler] = useState({})
+
+  const toggleKavram = (kavram) => {
+    setSecilenKavram(prev =>
+      prev.includes(kavram)
+        ? prev.filter(k => k !== kavram)
+        : [...prev, kavram]
+    )
+  }
+
+  const toggleKategori = (baslik) => {
+    setAcikKategoriler(prev => ({
+      ...prev,
+      [baslik]: !prev[baslik]
+    }))
+  }
+
+  const handleYeniKavramEkle = (kategoriBaslik) => {
+    const yeniKavram = yeniKavramlar[kategoriBaslik]?.trim()
+    if (yeniKavram) {
+      setKavramKategorileri(prevKategoriler =>
+        prevKategoriler.map(kategori =>
+          kategori.baslik === kategoriBaslik
+            ? { ...kategori, kavramlar: [...kategori.kavramlar, yeniKavram] }
+            : kategori
+        )
+      )
+      setYeniKavramlar(prev => ({ ...prev, [kategoriBaslik]: '' }))
+    }
+  }
 
   const handleGenerateStory = async () => {
     if (selectedCharacters.length === 0) {
@@ -48,8 +114,8 @@ function App() {
       return
     }
 
-    if (!secilenKavram) {
-      alert('Lütfen öğretilecek bir kavram seçin!')
+    if (secilenKavram.length === 0) {
+      alert('Lütfen en az bir kavram seçin!')
       return
     }
 
@@ -63,7 +129,7 @@ function App() {
         selectedCharacters.join(', '),
         storyLength,
         languageLevel,
-        secilenKavram
+        secilenKavram.join(', ')
       )
 
       console.log('Hikaye başarıyla oluşturuldu')
@@ -82,7 +148,7 @@ function App() {
     }
   }
 
-  // Ses tanıma fonksiyonunu ekleyelim
+
   const startListening = () => {
     if ('webkitSpeechRecognition' in window) {
       recognitionRef.current = new webkitSpeechRecognition()
@@ -248,20 +314,62 @@ function App() {
 
             {/* Kavram Seçimi */}
             <div className="card">
-              <h2 className="text-xl font-semibold mb-4 text-center text-white">Öğrenilecek Kavramı Seç</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {kavramlar.map((kavram) => (
-                  <button
-                    key={kavram}
-                    className={`character-btn ${secilenKavram === kavram
-                      ? 'bg-yellow-500 text-white'
-                      : 'text-[hsla(42,72%,47%,1)]'} 
-                    p-2 rounded-lg border-2 border-[hsla(42,72%,47%,1)] 
-                    hover:bg-yellow-400 hover:text-white transition-colors`}
-                    onClick={() => setSecilenKavram(kavram)}
-                  >
-                    {kavram}
-                  </button>
+              <h2 className="text-xl font-semibold mb-4 text-center text-white">Öğrenilecek Kavramları Seç</h2>
+              <div className="space-y-2">
+                {kavramKategorileri.map((kategori) => (
+                  <div key={kategori.baslik} className="border-2 border-[rgb(249, 249, 249)] rounded-lg overflow-hidden">
+                    <button
+                      className={`w-full p-3 text-left flex justify-between items-center ${acikKategoriler[kategori.baslik] ? 'bg-yellow-500 text-white' : "text-white"
+                        }`}
+                      onClick={() => toggleKategori(kategori.baslik)}
+                    >
+                      <span className="font-semibold">{kategori.baslik}</span>
+                      <span className="transform transition-transform duration-200 text-xl">
+                        {acikKategoriler[kategori.baslik] ? '−' : '+'}
+                      </span>
+                    </button>
+                    {acikKategoriler[kategori.baslik] && (
+                      <div className="p-3 bg-opacity-10 bg-yellow-500">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                          {kategori.kavramlar.map((kavram) => (
+                            <button
+                              key={kavram}
+                              className={`p-2 rounded-lg border-2 ${secilenKavram.includes(kavram)
+                                ? 'bg-yellow-500 text-white border-yellow-500'
+                                : 'border-[rgb(255, 255, 255)] text-white hover:bg-yellow-400 '
+                                } transition-colors`}
+                              onClick={() => toggleKavram(kavram)}
+                            >
+                              {kavram}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            type="text"
+                            value={yeniKavramlar[kategori.baslik] || ''}
+                            onChange={(e) => setYeniKavramlar(prev => ({
+                              ...prev,
+                              [kategori.baslik]: e.target.value
+                            }))}
+                            placeholder={`${kategori.baslik} kategorisine yeni kavram ekle...`}
+                            className="flex-1 p-2 rounded-lg border-2 border-[hsla(42,72%,47%,1)] focus:outline-none focus:border-yellow-500 text-[hsla(42,72%,47%,1)]"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                handleYeniKavramEkle(kategori.baslik)
+                              }
+                            }}
+                          />
+                          <button
+                            onClick={() => handleYeniKavramEkle(kategori.baslik)}
+                            className="px-4 py-2 bg-[hsla(42,72%,47%,1)] text-white rounded-lg hover:bg-yellow-500 transition-colors"
+                          >
+                            Ekle
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
