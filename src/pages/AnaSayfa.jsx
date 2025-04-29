@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from "../assets/background.jpg";
+import backgroundImage from "../assets/1.jpg"
+
+
+
+
+
 import { auth, logoutUser } from "../services/firebaseConfig";
 import { FaStar, FaTrophy } from 'react-icons/fa';
 
@@ -146,23 +151,24 @@ function AnaSayfa() {
 
                 {/* Ana Butonlar */}
                 <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-                    <div className="w-full max-w-3xl mx-auto">
-                        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
-                            <button
-                                onClick={() => navigate('/app')}
-                                className="w-full md:w-1/2 btn-primary bg-yellow-500 hover:bg-yellow-600 text-white text-lg sm:text-xl py-6 sm:py-8 px-4 sm:px-8 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center"
-                            >
-                                <span className="text-center">Sıfırdan Hikaye Oluştur</span>
-                            </button>
 
+                    <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
+                        <button
+                            onClick={() => navigate('/app')}
+                            className="w-full  btn-primary bg-yellow-500 hover:bg-yellow-600 text-white text-lg sm:text-xl py-6 sm:py-8 px-4 sm:px-8 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center "
+                        >
+                            <span className="text-center">Hikaye Oluştur</span>
+                        </button>
+                        {/*
                             <button
                                 onClick={() => navigate('/chat2')}
                                 className="w-full md:w-1/2 btn-primary bg-yellow-500 hover:bg-yellow-600 text-white text-lg sm:text-xl py-6 sm:py-8 px-4 sm:px-8 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center"
                             >
                                 <span className="text-center">Aklındaki Hikayeyi Oluştur</span>
                             </button>
-                        </div>
+*/}
                     </div>
+
                 </div>
             </div>
         </div>
