@@ -7,7 +7,7 @@ import HikayeyiOkuModal from '../components/HikayeyiOkuModal'
 import YapayZekaTestModal from '../components/yapayZekaTestModal'
 import GirisYapModal from '../components/girişYapModal'
 import UyariModal from '../components/UyariModal'
-import backgroundImage from "../assets/background2.jpg";
+import backgroundImage from "../assets/1.jpg";
 import { FaArrowLeft, FaCopy, FaChevronDown, FaChevronUp, FaPlay, FaStop, FaFileDownload, FaQuestionCircle, FaSignInAlt, FaSignOutAlt, FaExclamationCircle } from 'react-icons/fa';
 
 function Favorites() {
