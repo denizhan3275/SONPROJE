@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaMicrophone, FaMicrophoneSlash, FaPlay, FaStop, FaStar } from 'react-icons/fa';
-import backgroundImage from "../assets/background2.jpg";
 import { generateChatResponse } from '../services/api';
 
 export default function ChatSayfasi2() {
@@ -198,7 +197,7 @@ export default function ChatSayfasi2() {
             {/* Arka plan */}
             <div
                 style={{
-                    backgroundImage: `url(${backgroundImage})`,
+                    backgroundImage: `url(${require("../assets/1.jpg")})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
