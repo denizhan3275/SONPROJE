@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft, FaMicrophone, FaMicrophoneSlash, FaPlay, FaStop, FaPlus } from 'react-icons/fa';
-import backgroundImage from "../assets/background2.jpg";
+import backgroundImage from "../assets/1.jpg";
 import { generateChatResponse } from '../services/api';
 
 export default function ChatSayfasi() {
