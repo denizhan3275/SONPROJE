@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { generateStory } from './services/api'
 import StoryDisplay from './components/StoryDisplay'
 import { FaMicrophone, FaMicrophoneSlash, FaStar, FaArrowLeft } from 'react-icons/fa'
-import backgroundImage from "./assets/background.jpg";
+import backgroundImage from "./assets/1.jpg";
 
 import './index.css'
 
