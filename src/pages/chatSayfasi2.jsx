@@ -18,7 +18,7 @@ export default function ChatSayfasi2() {
     const navigate = useNavigate();
 
 
-    const addToFavorites = (text) => {
+    const addToFavorites = async (text) => {
         try {
             const newFavorite = {
                 id: Date.now(),
@@ -30,6 +30,13 @@ export default function ChatSayfasi2() {
 
             const favorites = JSON.parse(localStorage.getItem('favoriteStories') || '[]');
             localStorage.setItem('favoriteStories', JSON.stringify([...favorites, newFavorite]));
+            
+            // Eğer kullanıcı giriş yapmışsa Supabase'e de ekle
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await addFavoriteStory(user.id, newFavorite);
+            }
+            
             alert('Cevap favorilere eklendi!');
         } catch (error) {
             console.error('Favorilere ekleme hatası:', error);

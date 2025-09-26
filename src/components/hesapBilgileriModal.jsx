@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { auth, getKullaniciBilgileri } from '../services/firebaseConfig';
+import { supabase, getKullaniciBilgileri } from '../services/supabaseConfig';
 
 const HesapBilgileriModal = ({ isOpen, onClose }) => {
     const [kullaniciBilgileri, setKullaniciBilgileri] = useState(null);
@@ -8,10 +8,11 @@ const HesapBilgileriModal = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         const bilgileriGetir = async () => {
-            if (!auth.currentUser) return;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
 
             try {
-                const { data, error } = await getKullaniciBilgileri(auth.currentUser.uid);
+                const { data, error } = await getKullaniciBilgileri(user.id);
                 if (error) {
                     setError(error);
                 } else {
@@ -64,7 +65,7 @@ const HesapBilgileriModal = ({ isOpen, onClose }) => {
                         <div className="space-y-4">
                             <div className="border-b pb-4">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Kullanıcı Adı</h3>
-                                <p className="text-lg text-gray-800">{kullaniciBilgileri.kullaniciAdi}</p>
+                                <p className="text-lg text-gray-800">{kullaniciBilgileri.kullanici_adi}</p>
                             </div>
 
                             <div className="border-b pb-4">
@@ -75,14 +76,14 @@ const HesapBilgileriModal = ({ isOpen, onClose }) => {
                             <div className="border-b pb-4">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Kayıt Tarihi</h3>
                                 <p className="text-lg text-gray-800">
-                                    {new Date(kullaniciBilgileri.kayitTarihi).toLocaleDateString('tr-TR')}
+                                    {new Date(kullaniciBilgileri.kayit_tarihi).toLocaleDateString('tr-TR')}
                                 </p>
                             </div>
 
                             <div className="pb-4">
                                 <h3 className="text-sm font-semibold text-gray-600 mb-1">Son Giriş Tarihi</h3>
                                 <p className="text-lg text-gray-800">
-                                    {new Date(kullaniciBilgileri.sonGirisTarihi).toLocaleDateString('tr-TR')}
+                                    {new Date(kullaniciBilgileri.son_giris_tarihi).toLocaleDateString('tr-TR')}
                                 </p>
                             </div>
                         </div>

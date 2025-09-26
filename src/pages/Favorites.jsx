@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../services/firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { supabase, getFavoriteStories, addFavoriteStory, updateFavoriteStory, deleteFavoriteStory } from '../services/supabaseConfig';
 import HikayeyiOkuModal from '../components/HikayeyiOkuModal'
 import YapayZekaTestModal from '../components/yapayZekaTestModal'
 import GirisYapModal from '../components/girişYapModal'
@@ -30,39 +28,43 @@ function Favorites() {
     const [isUyariModalOpen, setIsUyariModalOpen] = useState(false);
 
     useEffect(() => {
-        // Auth state'ini dinle
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            setCurrentUser(session?.user || null);
         });
 
-        return () => unsubscribe();
+        return () => subscription?.unsubscribe();
     }, []);
 
     useEffect(() => {
         const loadFavorites = async () => {
             try {
-                // Önce local storage'dan hikayeleri al
                 const localFavorites = JSON.parse(localStorage.getItem('favoriteStories') || '[]');
 
                 if (currentUser) {
-                    // Kullanıcı giriş yapmışsa Firebase'den hikayeleri al
-                    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                    if (userDoc.exists()) {
-                        const firebaseFavorites = userDoc.data().favorites || [];
+                    // Kullanıcı giriş yapmışsa Supabase'den hikayeleri al
+                    const { data: supabaseFavorites, error } = await getFavoriteStories(currentUser.id);
+                    
+                    if (!error && supabaseFavorites) {
+                        // Supabase verilerini local storage formatına dönüştür
+                        const formattedFavorites = supabaseFavorites.map(story => ({
+                            id: story.id,
+                            content: story.content,
+                            character: story.character,
+                            storyName: story.story_name,
+                            aiResponses: story.ai_responses || [],
+                            createdAt: story.created_at
+                        }));
 
-                        // Local ve Firebase'deki hikayeleri birleştir (duplicate'leri önle)
-                        const mergedFavorites = [...new Map([...localFavorites, ...firebaseFavorites].map(item => [item.id, item])).values()];
+                        // Local ve Supabase'deki hikayeleri birleştir
+                        const mergedFavorites = [...new Map([...localFavorites, ...formattedFavorites].map(item => [item.id, item])).values()];
 
-                        // Birleştirilmiş hikayeleri hem local storage'a hem de Firebase'e kaydet
+                        // Local storage'ı güncelle
                         localStorage.setItem('favoriteStories', JSON.stringify(mergedFavorites));
-                        await setDoc(doc(db, 'users', currentUser.uid), {
-                            favorites: mergedFavorites
-                        }, { merge: true });
-
                         setFavorites(mergedFavorites);
+                    } else {
+                        setFavorites(localFavorites);
                     }
                 } else {
-                    // Kullanıcı giriş yapmamışsa sadece local storage'daki hikayeleri göster
                     setFavorites(localFavorites);
                 }
             } catch (error) {
@@ -83,15 +85,13 @@ function Favorites() {
     const removeFavorite = async (id) => {
         try {
             const updatedFavorites = favorites.filter(story => story.id !== id);
+            const storyToDelete = favorites.find(story => story.id === id);
 
-            // Local storage'ı güncelle
             localStorage.setItem('favoriteStories', JSON.stringify(updatedFavorites));
 
-            // Eğer kullanıcı giriş yapmışsa Firebase'i de güncelle
-            if (currentUser) {
-                await setDoc(doc(db, 'users', currentUser.uid), {
-                    favorites: updatedFavorites
-                }, { merge: true });
+            // Eğer kullanıcı giriş yapmışsa ve hikaye Supabase'de varsa sil
+            if (currentUser && storyToDelete && typeof storyToDelete.id === 'number') {
+                await deleteFavoriteStory(storyToDelete.id);
             }
 
             setFavorites(updatedFavorites);
@@ -173,14 +173,11 @@ function Favorites() {
                 return story;
             });
 
-            // Local storage'ı güncelle
             localStorage.setItem('favoriteStories', JSON.stringify(updatedFavorites));
 
-            // Eğer kullanıcı giriş yapmışsa Firebase'i de güncelle
-            if (currentUser) {
-                await setDoc(doc(db, 'users', currentUser.uid), {
-                    favorites: updatedFavorites
-                }, { merge: true });
+            // Eğer kullanıcı giriş yapmışsa ve hikaye Supabase'de varsa güncelle
+            if (currentUser && typeof storyId === 'number') {
+                await updateFavoriteStory(storyId, { story_name: storyName });
             }
 
             setFavorites(updatedFavorites);
@@ -261,7 +258,7 @@ function Favorites() {
                         <div className="flex gap-2">
                             {currentUser ? (
                                 <button
-                                    onClick={() => auth.signOut()}
+                                    onClick={() => supabase.auth.signOut()}
                                     className="btn-primary bg-red-500 hover:bg-red-600 flex items-center gap-2"
                                 >
                                     <FaSignOutAlt className="w-5 h-5" />

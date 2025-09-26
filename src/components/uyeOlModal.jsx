@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerUser } from '../services/firebaseConfig';
+import { registerUser } from '../services/supabaseConfig';
 
 const UyeOlModal = ({ isOpen, onClose }) => {
     const [kullaniciAdi, setKullaniciAdi] = useState('');

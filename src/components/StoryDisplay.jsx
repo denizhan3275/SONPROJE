@@ -1,21 +1,35 @@
 import { useState } from 'react'
+import { supabase, addFavoriteStory } from '../services/supabaseConfig'
 import Modal from './Modal'
 
 function StoryDisplay({ story, character }) {
     const [isSpeaking, setIsSpeaking] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const addToFavorites = () => {
-        const newFavorite = {
-            id: Date.now(),
-            content: story,
-            character: character,
-            createdAt: new Date().toISOString()
-        }
+    const addToFavorites = async () => {
+        try {
+            const newFavorite = {
+                id: Date.now(),
+                content: story,
+                character: character,
+                createdAt: new Date().toISOString()
+            }
 
-        const favorites = JSON.parse(localStorage.getItem('favoriteStories') || '[]')
-        localStorage.setItem('favoriteStories', JSON.stringify([...favorites, newFavorite]))
-        alert('Hikaye favorilere eklendi!')
+            // Local storage'a ekle
+            const favorites = JSON.parse(localStorage.getItem('favoriteStories') || '[]')
+            localStorage.setItem('favoriteStories', JSON.stringify([...favorites, newFavorite]))
+
+            // Eğer kullanıcı giriş yapmışsa Supabase'e de ekle
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await addFavoriteStory(user.id, newFavorite);
+            }
+
+            alert('Hikaye favorilere eklendi!')
+        } catch (error) {
+            console.error('Favorilere ekleme hatası:', error)
+            alert('Hikaye favorilere eklenirken bir hata oluştu')
+        }
     }
 
     const handleSpeak = () => {

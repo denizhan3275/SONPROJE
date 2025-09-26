@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from "../assets/1.jpg"
-
-
-
-
-
-import { auth, logoutUser } from "../services/firebaseConfig";
+import { supabase, logoutUser } from "../services/supabaseConfig";
 import { FaStar, FaTrophy } from 'react-icons/fa';
 
 import UyeOlModal from "../components/uyeOlModal"
@@ -23,11 +18,11 @@ function AnaSayfa() {
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            setCurrentUser(session?.user || null);
         });
 
-        return () => unsubscribe();
+        return () => subscription?.unsubscribe();
     }, []);
 
     const handleLogout = async () => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../services/firebaseConfig';
+import { getAllUsersScores } from '../services/supabaseConfig';
 
 // Modal'ı erişilebilirlik için ana elemana bağlama
 Modal.setAppElement('#root');
@@ -34,13 +33,12 @@ function UyelerinSkorlarıModal({ isOpen, onClose }) {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const usersCollection = collection(db, 'users');
-                const userSnapshot = await getDocs(usersCollection);
-                const userList = userSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setUsers(userList);
+                const { data, error } = await getAllUsersScores();
+                if (error) {
+                    console.error('Kullanıcı verileri alınamadı:', error);
+                } else {
+                    setUsers(data);
+                }
             } catch (error) {
                 console.error('Kullanıcı verileri alınamadı:', error);
             }
@@ -53,9 +51,9 @@ function UyelerinSkorlarıModal({ isOpen, onClose }) {
 
     const sortedUsers = [...users].sort((a, b) => {
         if (sortCriteria === 'testCount') {
-            return (b.testCount || 0) - (a.testCount || 0);
+            return (b.test_count || 0) - (a.test_count || 0);
         } else {
-            return (b.successRate || 0) - (a.successRate || 0);
+            return (b.success_rate || 0) - (a.success_rate || 0);
         }
     });
 
@@ -119,14 +117,14 @@ function UyelerinSkorlarıModal({ isOpen, onClose }) {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">
-                                            {user.username || 'İsimsiz Kullanıcı'}
+                                            {user.kullanici_adi || 'İsimsiz Kullanıcı'}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {user.testCount || 0}
+                                        {user.test_count || 0}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {user.successRate ? `%${user.successRate.toFixed(1)}` : '%0'}
+                                        {user.success_rate ? `%${user.success_rate.toFixed(1)}` : '%0'}
                                     </td>
                                 </tr>
                             ))}

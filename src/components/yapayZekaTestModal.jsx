@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { generateTest } from '../services/api';
-import { auth, db } from '../services/firebaseConfig';
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { supabase, updateUserTestScore } from '../services/supabaseConfig';
 
 const YapayZekaTestModal = ({ isOpen, onClose, story }) => {
     const [questions, setQuestions] = useState([]);
@@ -87,34 +86,13 @@ const YapayZekaTestModal = ({ isOpen, onClose, story }) => {
         setResults(results);
         setTestCompleted(true);
 
-        // Firebase'e test sonuçlarını kaydet
-        if (auth.currentUser) {
+        // Supabase'e test sonuçlarını kaydet
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
             try {
-                const userRef = doc(db, 'users', auth.currentUser.uid);
-                const userDoc = await getDoc(userRef);
-
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const testCount = (userData.testCount || 0) + 1;
-                    const totalScore = (userData.totalScore || 0) + parseFloat(results.score);
-                    const successRate = totalScore / testCount;
-
-                    await updateDoc(userRef, {
-                        testCount,
-                        totalScore,
-                        successRate,
-                        lastTestDate: new Date(),
-                        username: auth.currentUser.displayName || 'İsimsiz Kullanıcı'
-                    });
-                } else {
-                    // Kullanıcı dökümanı yoksa yeni oluştur
-                    await setDoc(userRef, {
-                        testCount: 1,
-                        totalScore: parseFloat(results.score),
-                        successRate: parseFloat(results.score),
-                        lastTestDate: new Date(),
-                        username: auth.currentUser.displayName || 'İsimsiz Kullanıcı'
-                    });
+                const { error } = await updateUserTestScore(user.id, results.score);
+                if (error) {
+                    console.error('Test sonuçları kaydedilirken hata oluştu:', error);
                 }
             } catch (error) {
                 console.error('Test sonuçları kaydedilirken hata oluştu:', error);

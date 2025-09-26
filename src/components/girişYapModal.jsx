@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginUser } from '../services/firebaseConfig';
+import { loginUser } from '../services/supabaseConfig';
 import UyeOlModal from './uyeOlModal';
 
 const GirisYapModal = ({ isOpen, onClose }) => {
